@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0b">
+<title>Samir Barber · Agende seu horário</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0b;--bg2:#111113;--card:#17171a;--card2:#1e1e22;--line:#2b2b30;--text:#f2efe8;--muted:#9a968c;--gold:#d4af37;--gold-dark:#9c7c1c;--danger:#e5645a;--radius:16px;--grad:linear-gradient(135deg,#f1d36b 0%,#d4af37 45%,#9c7c1c 100%)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;min-height:100vh;background-image:radial-gradient(1000px 500px at 50% -150px,rgba(212,175,55,.12),transparent 70%)}
+h1,h2,h3{margin:0;font-family:"Playfair Display",Georgia,serif}
+button,input{font:inherit;color:inherit}button{cursor:pointer}
+.hidden{display:none!important}
+.hero{text-align:center;padding:38px 20px 22px}
+.logo{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;box-shadow:0 0 30px rgba(212,175,55,.25)}
+.logo svg{width:32px;height:32px;stroke:var(--gold)}
+.brand{font-size:2rem;font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;text-transform:uppercase;letter-spacing:3px}
+.tagline{color:var(--muted);font-size:.92rem;margin:6px 0 0}
+.container{width:100%;max-width:560px;margin:0 auto;padding:0 16px 40px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px;margin-bottom:16px;transition:opacity .25s,border-color .25s}
+.step.locked{opacity:.4;pointer-events:none}.step.active{border-color:rgba(212,175,55,.45)}
+.step-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.num{width:30px;height:30px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--grad);color:#111;font-weight:700;font-size:.9rem}
+.step-head h2{font-size:1.15rem}
+.services{display:grid;gap:10px}
+.service{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card2);border:1.5px solid var(--line);border-radius:14px;padding:16px;transition:.2s}
+.service:hover{border-color:var(--gold-dark)}
+.service.selected{border-color:var(--gold);background:rgba(212,175,55,.08);box-shadow:0 0 0 3px rgba(212,175,55,.12)}
+.service strong{display:block}.service span{color:var(--muted);font-size:.85rem}.service .dur{color:var(--gold);font-weight:600;white-space:nowrap}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-title{font-family:"Playfair Display",Georgia,serif;font-size:1.1rem;text-transform:capitalize}
+.cal-nav{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card2);font-size:1.2rem;color:var(--gold)}
+.cal-nav:disabled{opacity:.3;cursor:default}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dow{text-align:center;font-size:.72rem;color:var(--muted);text-transform:uppercase;padding-bottom:4px}
+.day{aspect-ratio:1;border-radius:12px;border:1px solid transparent;background:var(--card2);display:grid;place-items:center;font-weight:500;padding:0}
+.day.empty{background:transparent;pointer-events:none}
+.day:disabled{background:transparent;color:#4a4a50;cursor:not-allowed}
+.day.today{border-color:var(--gold-dark)}.day:not(:disabled):hover{border-color:var(--gold)}
+.day.selected{background:var(--grad);color:#111;font-weight:700;border-color:transparent}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
+.slot{padding:12px 0;border-radius:12px;background:var(--card2);border:1.5px solid var(--line);font-weight:600;transition:.15s}
+.slot:hover{border-color:var(--gold)}.slot.selected{background:var(--grad);color:#111;border-color:transparent}
+.empty-msg{color:var(--muted);text-align:center;padding:14px 6px;grid-column:1/-1}
+.day-label{color:var(--muted);font-size:.9rem;margin-bottom:12px;text-transform:capitalize}
+.field{margin-bottom:14px}.field label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px}
+.input{width:100%;padding:14px;border-radius:12px;background:var(--bg2);border:1.5px solid var(--line);outline:none;font-size:1rem;transition:.2s}
+.input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.15)}
+.summary{background:var(--bg2);border:1px dashed var(--gold-dark);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:.92rem;color:var(--muted)}.summary b{color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 18px;border-radius:14px;border:none;font-weight:700;font-size:1rem;transition:.2s;text-decoration:none}
+.btn-gold{background:var(--grad);color:#111;box-shadow:0 8px 24px rgba(212,175,55,.25)}.btn-gold:hover{filter:brightness(1.08)}
+.btn-out{background:transparent;color:var(--gold);border:1.5px solid var(--gold-dark)}.btn-out:hover{background:rgba(212,175,55,.08)}
+.btn-wa{background:#25d366;color:#06280f}
+.btn-danger{background:transparent;color:var(--danger);border:1.5px solid rgba(229,100,90,.45)}
+.btn-sm{width:auto;padding:9px 14px;font-size:.85rem;border-radius:10px}
+.stack{display:grid;gap:10px}
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);display:grid;place-items:center;padding:18px;z-index:50}
+.modal{width:100%;max-width:440px;background:var(--card);border:1px solid var(--gold-dark);border-radius:20px;padding:28px 22px;text-align:center;animation:pop .3s ease;max-height:94vh;overflow:auto}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+.check{width:68px;height:68px;margin:0 auto 14px;border-radius:50%;background:var(--grad);display:grid;place-items:center}.check svg{width:34px;height:34px;stroke:#111}
+.modal h2{font-size:1.5rem;margin-bottom:4px}.modal p{color:var(--muted);margin:0 0 16px}
+.receipt{text-align:left;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:6px 16px;margin-bottom:18px}
+.receipt div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.95rem}.receipt div:last-child{border:none}
+.receipt span{color:var(--muted)}.receipt b{text-align:right}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--gold-dark);padding:12px 18px;border-radius:12px;z-index:80;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.5);font-size:.92rem}
+.toast.error{border-color:var(--danger)}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:0 16px 30px}footer a{color:var(--muted)}
+/* botão flutuante whatsapp */
+.wa-float{position:fixed;right:18px;bottom:18px;width:58px;height:58px;border-radius:50%;background:#25d366;color:#fff;display:grid;place-items:center;z-index:40;box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 0 0 rgba(37,211,102,.6);animation:wapulse 2.4s infinite;transition:transform .2s}
+.wa-float:hover{transform:scale(1.08)}
+.wa-float svg{width:32px;height:32px;fill:currentColor}
+@keyframes wapulse{0%{box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 0 0 rgba(37,211,102,.55)}70%{box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 0 16px rgba(37,211,102,0)}100%{box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 0 0 rgba(37,211,102,0)}}
+/* admin */
+.admin-wrap{max-width:880px;margin:0 auto;padding:0 16px 80px}
+.admin-top{display:flex;justify-content:space-between;align-items:center;padding:22px 0 14px;gap:10px;flex-wrap:wrap}
+.login-card{max-width:380px;margin:10vh auto 0;background:var(--card);border:1px solid var(--gold-dark);border-radius:20px;padding:28px 22px}
+.err{color:var(--danger);font-size:.88rem;min-height:1.2em;margin:4px 0 10px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.tab{flex:none;background:transparent;border:none;padding:11px 14px;color:var(--muted);border-bottom:2px solid transparent;font-weight:600;white-space:nowrap}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}.panel h3{font-size:1.1rem;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.row>.field{flex:1 1 140px;margin-bottom:0}
+.date-bar{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}.date-bar .input{flex:1;min-width:150px}.date-bar .btn{width:auto;padding:12px 14px}
+.item{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:14px;border:1px solid var(--line);border-left:3px solid var(--gold);background:var(--card2);border-radius:12px;margin-bottom:10px}
+.item.cancelled,.item.no_show{opacity:.55;border-left-color:var(--danger)}.item.block{border-left-color:#6b6b73}
+.item .t{font-weight:700;color:var(--gold);line-height:1.2}.item .t small{display:block;color:var(--muted);font-weight:400;font-size:.78rem}
+.item .who{font-weight:600}.item .meta{color:var(--muted);font-size:.86rem}.item .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.badge{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:middle}
+.badge.red{background:rgba(229,100,90,.15);color:var(--danger)}.badge.gray{background:rgba(255,255,255,.08);color:var(--muted)}
+.list-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.list-row:last-child{border:none}
+.list-row small{color:var(--muted);display:block}
+.days-grid{display:grid;gap:10px}
+.day-row{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:12px}
+.day-row .times{display:flex;gap:8px;align-items:center;grid-column:1/-1}.day-row .times .input{padding:10px}
+.day-row.off .times{opacity:.35;pointer-events:none}
+.switch{position:relative;width:48px;height:28px}.switch input{opacity:0;width:100%;height:100%;position:absolute;margin:0;cursor:pointer;z-index:1}
+.switch i{position:absolute;inset:0;background:#34343a;border-radius:99px;transition:.2s}
+.switch i::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.switch input:checked+i{background:var(--gold)}.switch input:checked+i::after{transform:translateX(20px);background:#111}
+.chk{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.92rem}.chk input{width:18px;height:18px;accent-color:var(--gold)}
+.note{font-size:.8rem;color:var(--muted);margin-top:10px}
+@media(min-width:640px){.brand{font-size:2.4rem}.day-row{grid-template-columns:140px auto 1fr}.day-row .times{grid-column:auto}}
+</style>
+</head>
+<body>
+
+<!-- ===================== SITE DO CLIENTE ===================== -->
+<div id="client-view">
+  <header class="hero">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></svg></div>
+    <h1 class="brand">Samir Barber</h1>
+    <p class="tagline">Estilo, precisão e tradição. Agende seu horário.</p>
+  </header>
+  <main class="container">
+    <section class="step active" id="step-service">
+      <div class="step-head"><div class="num">1</div><h2>Escolha o serviço</h2></div>
+      <div class="services" id="services"></div>
+    </section>
+    <section class="step locked" id="step-date">
+      <div class="step-head"><div class="num">2</div><h2>Escolha o dia</h2></div>
+      <div class="cal-head">
+        <button class="cal-nav" id="cal-prev" aria-label="Mês anterior">‹</button>
+        <div class="cal-title" id="cal-title"></div>
+        <button class="cal-nav" id="cal-next" aria-label="Próximo mês">›</button>
+      </div>
+      <div class="cal-grid" id="cal-dow"></div>
+      <div class="cal-grid" id="cal-days" style="margin-top:6px"></div>
+    </section>
+    <section class="step locked" id="step-time">
+      <div class="step-head"><div class="num">3</div><h2>Escolha o horário</h2></div>
+      <div class="day-label" id="slots-info"></div>
+      <div class="slots" id="slots"></div>
+    </section>
+    <section class="step locked" id="step-info">
+      <div class="step-head"><div class="num">4</div><h2>Seus dados</h2></div>
+      <form id="form" novalidate>
+        <div class="summary" id="summary"></div>
+        <div class="field"><label for="name">Nome</label><input class="input" id="name" type="text" autocomplete="name" placeholder="Seu nome" maxlength="80"></div>
+        <div class="field"><label for="phone">Telefone (WhatsApp)</label><input class="input" id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(65) 99999-9999" maxlength="16"></div>
+        <button class="btn btn-gold" id="submit" type="submit">Confirmar agendamento</button>
+      </form>
+    </section>
+  </main>
+  <footer>© Samir Barber · <a href="#admin">Área do barbeiro</a></footer>
+
+  <a class="wa-float" id="wa-float" href="#" target="_blank" rel="noopener" aria-label="Falar com o Samir no WhatsApp" title="Falar no WhatsApp">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <div class="modal-back hidden" id="modal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h2>Horário confirmado!</h2>
+      <p>Te esperamos na Samir Barber.</p>
+      <div class="receipt" id="receipt"></div>
+      <div class="stack">
+        <a class="btn btn-wa" id="wa-btn" href="#" target="_blank" rel="noopener">Avisar o Samir no WhatsApp</a>
+        <button class="btn btn-out" id="new-booking" type="button">Fazer novo agendamento</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ADMIN: LOGIN ===================== -->
+<div id="login-view" class="hidden">
+  <form class="login-card" id="login-form">
+    <h1 class="brand" style="font-size:1.6rem;text-align:center">Samir Barber</h1>
+    <p class="tagline" style="text-align:center;margin:0 0 18px">Painel administrativo</p>
+    <div class="field"><label for="user">Usuário</label><input class="input" id="user" autocomplete="username"></div>
+    <div class="field"><label for="pass">Senha</label><input class="input" id="pass" type="password" autocomplete="current-password"></div>
+    <div class="err" id="login-err"></div>
+    <button class="btn btn-gold" type="submit">Entrar</button>
+    <p style="text-align:center;margin:16px 0 0"><a href="#" style="color:var(--muted);font-size:.85rem">← Voltar ao site</a></p>
+  </form>
+</div>
+
+<!-- ===================== ADMIN: PAINEL ===================== -->
+<div id="app-view" class="admin-wrap hidden">
+  <div class="admin-top">
+    <h1 class="brand" style="font-size:1.4rem">Samir Barber · Painel</h1>
+    <div style="display:flex;gap:8px"><a class="btn btn-out btn-sm" href="#">Ver site</a><button class="btn btn-out btn-sm" id="logout">Sair</button></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="agenda">Agenda</button>
+    <button class="tab" data-tab="blocks">Bloqueios</button>
+    <button class="tab" data-tab="hours">Horários</button>
+    <button class="tab" data-tab="blacklist">Lista negra</button>
+  </nav>
+
+  <section id="tab-agenda">
+    <div class="date-bar">
+      <button class="btn btn-out" id="d-prev" aria-label="Dia anterior">‹</button>
+      <input class="input" type="date" id="d-input">
+      <button class="btn btn-out" id="d-next" aria-label="Próximo dia">›</button>
+      <button class="btn btn-gold" id="d-today">Hoje</button>
+    </div>
+    <div class="day-label" id="day-label"></div>
+    <div id="agenda-list"></div>
+  </section>
+
+  <section id="tab-blocks" class="hidden">
+    <div class="panel">
+      <h3>Bloquear data / horário</h3>
+      <form id="block-form">
+        <div class="row">
+          <div class="field"><label>Data</label><input class="input" type="date" id="b-date"></div>
+          <div class="field"><label>Início</label><input class="input" type="time" id="b-start" value="12:00"></div>
+          <div class="field"><label>Fim</label><input class="input" type="time" id="b-end" value="13:00"></div>
+        </div>
+        <div class="field" style="margin-top:12px"><label>Motivo (opcional)</label><input class="input" id="b-reason" maxlength="100" placeholder="Ex.: almoço, compromisso"></div>
+        <label class="chk" style="margin:0 0 14px"><input type="checkbox" id="b-allday"> Bloquear o dia inteiro</label>
+        <button class="btn btn-gold" type="submit">Fechar este espaço</button>
+      </form>
+    </div>
+    <div class="panel"><h3>Bloqueios futuros</h3><div id="blocks-list"></div></div>
+  </section>
+
+  <section id="tab-hours" class="hidden">
+    <div class="panel">
+      <h3>Dias e horários de trabalho</h3>
+      <div class="days-grid" id="days-grid"></div>
+      <h3 style="margin-top:22px">Intervalo diário (almoço)</h3>
+      <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="break-on"> Fechar todos os dias neste intervalo</label>
+      <div class="row">
+        <div class="field"><label>Início</label><input class="input" type="time" id="break-start" value="12:00"></div>
+        <div class="field"><label>Fim</label><input class="input" type="time" id="break-end" value="13:00"></div>
+      </div>
+      <h3 style="margin-top:22px">Agenda aberta para clientes</h3>
+      <div class="row"><div class="field" style="max-width:220px"><label>Quantos dias à frente</label><input class="input" type="number" id="max-days" min="1" max="180" value="30"></div></div>
+      <button class="btn btn-gold" id="save-hours" style="margin-top:20px">Salvar configurações</button>
+    </div>
+  </section>
+
+  <section id="tab-blacklist" class="hidden">
+    <div class="panel">
+      <h3>Adicionar à lista negra</h3>
+      <form id="bl-form">
+        <div class="row">
+          <div class="field"><label>Telefone</label><input class="input" id="bl-phone" type="tel" inputmode="tel" placeholder="(65) 99999-9999"></div>
+          <div class="field"><label>Nome (opcional)</label><input class="input" id="bl-name" maxlength="80"></div>
+        </div>
+        <div class="field" style="margin-top:12px"><label>Motivo (opcional)</label><input class="input" id="bl-reason" maxlength="200" placeholder="Ex.: faltou sem avisar"></div>
+        <button class="btn btn-gold" type="submit">Bloquear número</button>
+      </form>
+    </div>
+    <div class="panel"><h3>Números bloqueados</h3><div id="bl-list"></div></div>
+  </section>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   SAMIR BARBER - tudo em uma página (sem servidor, sem instalação)
+   ===================================================================== */
+
+/* ---- CONFIGURAÇÃO (edite aqui) ------------------------------------ */
+const ADMIN_USER   = 'admin';        // login do painel
+const ADMIN_PASS   = 'samir123';     // senha do painel  (TROQUE!)
+const BARBER_PHONE = '5565992396166';// WhatsApp do Samir (DDI+DDD+número)
+const STEP         = 15;             // intervalo entre horários (minutos)
+const SERVICES = {
+  corte:          { name: 'Corte de cabelo', duration: 30 },
+  'cabelo-barba': { name: 'Cabelo + barba',  duration: 45 },
+};
+/* ------------------------------------------------------------------- */
+
+const $ = s => document.querySelector(s);
+const MONTHS = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const WD = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const WD_LONG = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+const DAY_NAMES = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const pad = n => String(n).padStart(2, '0');
+const fmtDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const todayStr = () => fmtDate(new Date());
+const parseDate = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (s, n) => { const d = parseDate(s); d.setDate(d.getDate()+n); return fmtDate(d); };
+const brDate = s => s.split('-').reverse().join('/');
+const longDate = s => `${WD_LONG[parseDate(s).getDay()]}, ${brDate(s)}`;
+const toMin = s => { const [h,m] = s.split(':').map(Number); return h*60+m; };
+const toHM = m => `${pad(Math.floor(m/60))}:${pad(m%60)}`;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function normPhone(p) {
+  const d = String(p || '').replace(/\D/g, '');
+  if (d.startsWith('55') && (d.length === 12 || d.length === 13)) return d;
+  if (d.length === 10 || d.length === 11) return '55' + d;
+  return null;
+}
+function fmtPhone(p) {
+  const d = p.replace(/^55/, '');
+  return d.length === 11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
+}
+function maskPhone(el) {
+  el.addEventListener('input', () => {
+    let d = el.value.replace(/\D/g, '').slice(0, 11);
+    if (d.length > 6) d = d.length > 10 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
+    else if (d.length > 2) d = `(${d.slice(0,2)}) ${d.slice(2)}`;
+    else if (d.length) d = `(${d}`;
+    el.value = d;
+  });
+}
+function toast(msg, isErr) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = document.createElement('div');
+  t.className = 'toast' + (isErr ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4200);
+}
+const waLink = (phone, text) => `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+
+/* ---- "BANCO" (localStorage) --------------------------------------- */
+const KEY = 'samir_barber_v1';
+const defaultDB = () => ({
+  settings: {
+    days: Object.fromEntries([0,1,2,3,4,5,6].map(d => [d, { open: d !== 0, start: '09:00', end: '19:00' }])),
+    breakEnabled: false, breakStart: '12:00', breakEnd: '13:00', maxDays: 30,
+  },
+  appointments: [], blocks: [], blacklist: [], nextId: 1,
+});
+let DB = loadDB();
+function loadDB() {
+  try { const x = JSON.parse(localStorage.getItem(KEY)); if (x && x.settings) return x; } catch (_) {}
+  return defaultDB();
+}
+function saveDB() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (_) { toast('Não foi possível salvar os dados neste navegador.', true); } }
+const refreshDB = () => { DB = loadDB(); };
+
+/* ---- CÁLCULO DINÂMICO DE HORÁRIOS --------------------------------- */
+function computeSlots(date, duration) {
+  const st = DB.settings, today = todayStr();
+  if (date < today || date > addDays(today, st.maxDays)) return [];
+  const day = st.days[parseDate(date).getDay()];
+  if (!day || !day.open) return [];
+  const busy = [
+    ...DB.appointments.filter(a => a.date === date && a.status === 'confirmed').map(a => ({ s: a.start, e: a.end })),
+    ...DB.blocks.filter(b => b.date === date).map(b => ({ s: b.start, e: b.end })),
+  ];
+  if (st.breakEnabled) busy.push({ s: toMin(st.breakStart), e: toMin(st.breakEnd) });
+  const now = new Date(), minNow = date === today ? now.getHours()*60 + now.getMinutes() : -1;
+  const out = [];
+  for (let t = toMin(day.start); t + duration <= toMin(day.end); t += STEP) {
+    if (t <= minNow) continue;
+    if (busy.some(b => t < b.e && t + duration > b.s)) continue;
+    out.push(toHM(t));
+  }
+  return out;
+}
+
+/* =====================================================================
+   CLIENTE
+   ===================================================================== */
+const S = { service: null, date: null, time: null, vy: 0, vm: 0 };
+
+function unlock(id) {
+  const el = $(id);
+  el.classList.remove('locked');
+  document.querySelectorAll('#client-view .step').forEach(s => s.classList.toggle('active', s === el));
+  setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+}
+const lock = id => $(id).classList.add('locked');
+
+function renderServices() {
+  const box = $('#services'); box.innerHTML = '';
+  Object.entries(SERVICES).forEach(([key, s]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'service';
+    b.innerHTML = `<div><strong>${esc(s.name)}</strong><span>Duração aproximada</span></div><div class="dur">${s.duration} min</div>`;
+    b.onclick = () => {
+      S.service = key; S.time = null;
+      box.querySelectorAll('.service').forEach(x => x.classList.toggle('selected', x === b));
+      lock('#step-info'); unlock('#step-date');
+      S.date ? loadSlots() : renderCalendar();
+    };
+    box.appendChild(b);
+  });
+}
+
+function renderCalendar() {
+  refreshDB();
+  const today = todayStr(), [ty, tm] = today.split('-').map(Number);
+  const maxStr = addDays(today, DB.settings.maxDays), maxD = parseDate(maxStr);
+  $('#cal-title').textContent = `${MONTHS[S.vm]} ${S.vy}`;
+  $('#cal-prev').disabled = S.vy === ty && S.vm === tm - 1;
+  $('#cal-next').disabled = S.vy > maxD.getFullYear() || (S.vy === maxD.getFullYear() && S.vm >= maxD.getMonth());
+  const grid = $('#cal-days'); grid.innerHTML = '';
+  const first = new Date(S.vy, S.vm, 1).getDay(), total = new Date(S.vy, S.vm + 1, 0).getDate();
+  for (let i = 0; i < first; i++) grid.insertAdjacentHTML('beforeend', '<button class="day empty" disabled></button>');
+  for (let d = 1; d <= total; d++) {
+    const s = `${S.vy}-${pad(S.vm+1)}-${pad(d)}`;
+    const closed = !DB.settings.days[new Date(S.vy, S.vm, d).getDay()].open;
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = d;
+    b.className = 'day' + (s === today ? ' today' : '') + (s === S.date ? ' selected' : '');
+    b.disabled = s < today || s > maxStr || closed;
+    b.title = closed ? 'Fechado' : '';
+    b.onclick = () => { S.date = s; S.time = null; lock('#step-info'); renderCalendar(); loadSlots(); };
+    grid.appendChild(b);
+  }
+}
+
+function loadSlots() {
+  refreshDB();
+  const box = $('#slots'); box.innerHTML = '';
+  unlock('#step-time');
+  $('#slots-info').textContent = longDate(S.date);
+  const slots = computeSlots(S.date, SERVICES[S.service].duration);
+  if (!slots.length) { box.innerHTML = '<div class="empty-msg">Sem horários disponíveis neste dia. Escolha outra data.</div>'; return; }
+  slots.forEach(t => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = t;
+    b.className = 'slot' + (t === S.time ? ' selected' : '');
+    b.onclick = () => {
+      S.time = t;
+      box.querySelectorAll('.slot').forEach(x => x.classList.toggle('selected', x === b));
+      const sv = SERVICES[S.service];
+      $('#summary').innerHTML = `<b>${esc(sv.name)}</b> · ${sv.duration} min<br>${longDate(S.date)} às <b>${S.time}</b>`;
+      unlock('#step-info');
+    };
+    box.appendChild(b);
+  });
+}
+
+maskPhone($('#phone'));
+$('#form').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#name').value.trim().replace(/\s+/g, ' ');
+  const phone = normPhone($('#phone').value);
+  if (name.length < 2) return toast('Informe seu nome.', true);
+  if (!phone) return toast('Informe um telefone válido com DDD.', true);
+
+  refreshDB();
+  if (DB.blacklist.some(b => b.phone === phone)) return toast('Não foi possível concluir o agendamento. Entre em contato diretamente com a barbearia.', true);
+  const sv = SERVICES[S.service];
+  if (!computeSlots(S.date, sv.duration).includes(S.time)) {
+    toast('Esse horário acabou de ser ocupado. Escolha outro.', true);
+    S.time = null; lock('#step-info'); loadSlots(); return;
+  }
+  const start = toMin(S.time);
+  DB.appointments.push({ id: DB.nextId++, name, phone, service: S.service, date: S.date, start, end: start + sv.duration, status: 'confirmed' });
+  saveDB();
+
+  const text = `Agendademento Realizado com Sucesso! Cliente: ${name}, Serviço: ${sv.name}, Data: ${brDate(S.date)}, Horário: ${S.time}, Telefone: ${fmtPhone(phone)}.`;
+  const url = waLink(BARBER_PHONE, text);
+  showSuccess({ name, phone: fmtPhone(phone), service: `${sv.name} (${sv.duration} min)`, date: longDate(S.date), time: S.time }, url);
+  const w = window.open(url, '_blank');       // tenta abrir o WhatsApp automaticamente
+  if (w) w.opener = null;                       // se o navegador bloquear, o botão do modal funciona
+});
+
+function showSuccess(r, url) {
+  const rows = [['Cliente', r.name], ['Serviço', r.service], ['Data', r.date], ['Horário', r.time], ['Telefone', r.phone]];
+  $('#receipt').innerHTML = rows.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join('');
+  $('#wa-btn').href = url;
+  $('#modal').classList.remove('hidden');
+}
+$('#new-booking').onclick = () => {
+  $('#modal').classList.add('hidden');
+  Object.assign(S, { service: null, date: null, time: null });
+  $('#name').value = ''; $('#phone').value = '';
+  document.querySelectorAll('.service').forEach(x => x.classList.remove('selected'));
+  ['#step-date', '#step-time', '#step-info'].forEach(lock);
+  document.querySelectorAll('#client-view .step').forEach(s => s.classList.toggle('active', s.id === 'step-service'));
+  renderCalendar(); window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+$('#cal-prev').onclick = () => { if (--S.vm < 0) { S.vm = 11; S.vy--; } renderCalendar(); };
+$('#cal-next').onclick = () => { if (++S.vm > 11) { S.vm = 0; S.vy++; } renderCalendar(); };
+
+/* =====================================================================
+   ADMIN
+   ===================================================================== */
+let curDate = todayStr(), pollTimer = null;
+const isAuth = () => sessionStorage.getItem('sb_auth') === '1';
+
+$('#login-form').addEventListener('submit', e => {
+  e.preventDefault();
+  if ($('#user').value === ADMIN_USER && $('#pass').value === ADMIN_PASS) {
+    sessionStorage.setItem('sb_auth', '1'); $('#pass').value = ''; $('#login-err').textContent = '';
+    route();
+  } else $('#login-err').textContent = 'Usuário ou senha incorretos.';
+});
+$('#logout').onclick = () => { sessionStorage.removeItem('sb_auth'); route(); };
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => openTab(t.dataset.tab));
+function openTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  ['agenda','blocks','hours','blacklist'].forEach(n => $('#tab-' + n).classList.toggle('hidden', n !== name));
+  refreshDB();
+  ({ agenda: loadDay, blocks: loadBlocks, hours: loadSchedule, blacklist: loadBlacklist })[name]();
+}
+const currentTab = () => (document.querySelector('.tab.active') || {}).dataset?.tab;
+
+/* --- Agenda --- */
+function setDate(s) { curDate = s; $('#d-input').value = s; loadDay(); }
+$('#d-prev').onclick = () => setDate(addDays(curDate, -1));
+$('#d-next').onclick = () => setDate(addDays(curDate, 1));
+$('#d-today').onclick = () => setDate(todayStr());
+$('#d-input').onchange = e => e.target.value && setDate(e.target.value);
+
+function reminderLink(a) {
+  const sv = SERVICES[a.service]?.name || a.service;
+  const when = curDate === todayStr() ? 'hoje' : `no dia ${brDate(curDate).slice(0, 5)}`;
+  return waLink(a.phone, `Olá ${a.name}, passando para lembrar do seu horário de ${sv} ${when} às ${toHM(a.start)} na Samir Barber!`);
+}
+function loadDay() {
+  refreshDB();
+  const apps = DB.appointments.filter(a => a.date === curDate).map(a => ({ k: 'a', s: a.start, a }));
+  const blks = DB.blocks.filter(b => b.date === curDate).map(b => ({ k: 'b', s: b.start, b }));
+  const items = [...apps, ...blks].sort((x, y) => x.s - y.s);
+  const n = apps.filter(x => x.a.status === 'confirmed').length;
+  $('#day-label').textContent = `${longDate(curDate)} · ${n} agendamento${n === 1 ? '' : 's'}`;
+  $('#agenda-list').innerHTML = items.length ? items.map(it => it.k === 'a' ? apptHTML(it.a) : blockHTML(it.b)).join('') : '<div class="empty-msg">Nenhum agendamento neste dia.</div>';
+}
+function apptHTML(a) {
+  const st = a.status === 'cancelled' ? '<span class="badge gray">Cancelado</span>' : a.status === 'no_show' ? '<span class="badge red">Faltou</span>' : '';
+  const bl = DB.blacklist.some(b => b.phone === a.phone) ? '<span class="badge red">Lista negra</span>' : '';
+  const acts = a.status === 'confirmed'
+    ? `<a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${reminderLink(a)}">Lembrar cliente</a>
+       <button class="btn btn-out btn-sm" data-act="noshow" data-id="${a.id}">Faltou</button>
+       <button class="btn btn-danger btn-sm" data-act="cancel" data-id="${a.id}">Cancelar</button>`
+    : `<button class="btn btn-out btn-sm" data-act="restore" data-id="${a.id}">Reativar</button>`;
+  return `<div class="item ${a.status}"><div class="t">${toHM(a.start)}<small>até ${toHM(a.end)}</small></div>
+    <div><div class="who">${esc(a.name)} ${st}${bl}</div>
+    <div class="meta">${esc(SERVICES[a.service]?.name || a.service)} · ${esc(fmtPhone(a.phone))}</div>
+    <div class="acts">${acts}</div></div></div>`;
+}
+function blockHTML(b) {
+  const all = b.start === 0 && b.end >= 1440;
+  return `<div class="item block"><div class="t">${all ? 'Dia' : toHM(b.start)}<small>${all ? 'inteiro' : 'até ' + toHM(b.end)}</small></div>
+    <div><div class="who">Bloqueado <span class="badge gray">${esc(b.reason || 'sem motivo')}</span></div>
+    <div class="acts"><button class="btn btn-out btn-sm" data-act="unblock" data-id="${b.id}">Liberar</button></div></div></div>`;
+}
+$('#agenda-list').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]'); if (!btn) return;
+  refreshDB();
+  const id = +btn.dataset.id, a = DB.appointments.find(x => x.id === id);
+  switch (btn.dataset.act) {
+    case 'cancel':  if (!confirm('Cancelar este agendamento? O horário ficará livre.')) return; a.status = 'cancelled'; break;
+    case 'restore':
+      if (computeSlotsConflict(a)) return toast('Esse horário já foi ocupado por outro agendamento.', true);
+      a.status = 'confirmed'; break;
+    case 'noshow':
+      if (!confirm('Marcar como "faltou"? O horário ficará livre.')) return;
+      a.status = 'no_show';
+      if (confirm(`Adicionar ${a.name} à lista negra para impedir novos agendamentos?`)) addBlacklist(a.phone, a.name, 'Faltou sem avisar');
+      break;
+    case 'unblock': DB.blocks = DB.blocks.filter(b => b.id !== id); break;
+  }
+  saveDB(); loadDay();
+});
+function computeSlotsConflict(a) {
+  return DB.appointments.some(x => x.id !== a.id && x.date === a.date && x.status === 'confirmed' && a.start < x.end && a.end > x.start);
+}
+
+/* --- Bloqueios --- */
+$('#b-allday').onchange = e => { $('#b-start').disabled = $('#b-end').disabled = e.target.checked; };
+$('#block-form').addEventListener('submit', e => {
+  e.preventDefault(); refreshDB();
+  const date = $('#b-date').value, all = $('#b-allday').checked;
+  if (!date) return toast('Escolha a data.', true);
+  let start = 0, end = 1440;
+  if (!all) {
+    if (!$('#b-start').value || !$('#b-end').value || toMin($('#b-end').value) <= toMin($('#b-start').value)) return toast('Intervalo de horário inválido.', true);
+    start = toMin($('#b-start').value); end = toMin($('#b-end').value);
+  }
+  const conflicts = DB.appointments.filter(a => a.date === date && a.status === 'confirmed' && a.start < end && a.end > start).length;
+  DB.blocks.push({ id: DB.nextId++, date, start, end, reason: $('#b-reason').value.trim().slice(0, 100) });
+  saveDB(); $('#b-reason').value = '';
+  toast(conflicts ? `Bloqueado. Atenção: ${conflicts} agendamento(s) já existem nesse período.` : 'Espaço bloqueado.', !!conflicts);
+  loadBlocks();
+});
+function loadBlocks() {
+  const list = DB.blocks.filter(b => b.date >= todayStr()).sort((a, b) => a.date.localeCompare(b.date) || a.start - b.start);
+  $('#blocks-list').innerHTML = list.length ? list.map(b => {
+    const all = b.start === 0 && b.end >= 1440;
+    return `<div class="list-row"><div><b>${brDate(b.date)}</b> · ${all ? 'Dia inteiro' : toHM(b.start) + ' – ' + toHM(b.end)}<small>${esc(b.reason || 'sem motivo')}</small></div>
+      <button class="btn btn-out btn-sm" data-id="${b.id}">Liberar</button></div>`;
+  }).join('') : '<div class="empty-msg">Nenhum bloqueio futuro.</div>';
+}
+$('#blocks-list').addEventListener('click', e => {
+  const b = e.target.closest('button[data-id]'); if (!b) return;
+  refreshDB(); DB.blocks = DB.blocks.filter(x => x.id !== +b.dataset.id); saveDB(); loadBlocks();
+});
+
+/* --- Horários de trabalho --- */
+function loadSchedule() {
+  const s = DB.settings;
+  $('#days-grid').innerHTML = DAY_NAMES.map((n, d) => {
+    const x = s.days[d];
+    return `<div class="day-row ${x.open ? '' : 'off'}" data-d="${d}"><b>${n}</b>
+      <label class="switch"><input type="checkbox" class="d-open" ${x.open ? 'checked' : ''}><i></i></label>
+      <div class="times"><input class="input d-start" type="time" value="${x.start}"><span>até</span><input class="input d-end" type="time" value="${x.end}"></div></div>`;
+  }).join('');
+  $('#break-on').checked = s.breakEnabled; $('#break-start').value = s.breakStart; $('#break-end').value = s.breakEnd; $('#max-days').value = s.maxDays;
+}
+$('#days-grid').addEventListener('change', e => {
+  if (e.target.classList.contains('d-open')) e.target.closest('.day-row').classList.toggle('off', !e.target.checked);
+});
+$('#save-hours').onclick = () => {
+  const days = {};
+  for (const r of document.querySelectorAll('.day-row')) {
+    const o = { open: r.querySelector('.d-open').checked, start: r.querySelector('.d-start').value, end: r.querySelector('.d-end').value };
+    if (!o.start || !o.end || toMin(o.end) <= toMin(o.start)) return toast(`Horário inválido em ${DAY_NAMES[r.dataset.d].toLowerCase()}.`, true);
+    days[r.dataset.d] = o;
+  }
+  const be = $('#break-on').checked;
+  if (be && (!$('#break-start').value || !$('#break-end').value || toMin($('#break-end').value) <= toMin($('#break-start').value))) return toast('Intervalo de almoço inválido.', true);
+  refreshDB();
+  DB.settings = { days, breakEnabled: be, breakStart: $('#break-start').value || '12:00', breakEnd: $('#break-end').value || '13:00',
+    maxDays: Math.min(180, Math.max(1, parseInt($('#max-days').value, 10) || 30)) };
+  saveDB(); toast('Configurações salvas.');
+};
+
+/* --- Lista negra --- */
+maskPhone($('#bl-phone'));
+function addBlacklist(phone, name, reason) {
+  DB.blacklist = DB.blacklist.filter(b => b.phone !== phone);
+  DB.blacklist.push({ phone, name: name || '', reason: reason || '' });
+}
+$('#bl-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const p = normPhone($('#bl-phone').value);
+  if (!p) return toast('Telefone inválido.', true);
+  refreshDB(); addBlacklist(p, $('#bl-name').value.trim(), $('#bl-reason').value.trim()); saveDB();
+  e.target.reset(); toast('Número bloqueado.'); loadBlacklist();
+});
+function loadBlacklist() {
+  $('#bl-list').innerHTML = DB.blacklist.length ? DB.blacklist.map(r => `
+    <div class="list-row"><div><b>${esc(fmtPhone(r.phone))}</b>${r.name ? ' · ' + esc(r.name) : ''}<small>${esc(r.reason || 'sem motivo')}</small></div>
+    <button class="btn btn-out btn-sm" data-phone="${esc(r.phone)}">Remover</button></div>`).join('') : '<div class="empty-msg">Lista negra vazia.</div>';
+}
+$('#bl-list').addEventListener('click', e => {
+  const b = e.target.closest('button[data-phone]');
+  if (!b || !confirm('Remover este número da lista negra?')) return;
+  refreshDB(); DB.blacklist = DB.blacklist.filter(x => x.phone !== b.dataset.phone); saveDB(); loadBlacklist();
+});
+
+/* =====================================================================
+   ROTAS (#admin) e inicialização
+   ===================================================================== */
+function route() {
+  const admin = location.hash === '#admin';
+  $('#client-view').classList.toggle('hidden', admin);
+  $('#login-view').classList.toggle('hidden', !(admin && !isAuth()));
+  $('#app-view').classList.toggle('hidden', !(admin && isAuth()));
+  clearInterval(pollTimer);
+  if (admin && isAuth()) {
+    $('#d-input').value = curDate; $('#b-date').value = $('#b-date').value || todayStr();
+    openTab(currentTab() || 'agenda');
+    // atualização automática da agenda (a cada 10 s)
+    pollTimer = setInterval(() => { if (!document.hidden && currentTab() === 'agenda') loadDay(); }, 10000);
+  }
+  if (!admin) { refreshDB(); renderCalendar(); if (S.date && S.service) loadSlots(); }
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+// Se o barbeiro marcar algo em outra aba, esta aba atualiza sozinha
+window.addEventListener('storage', e => { if (e.key === KEY) { refreshDB(); if (location.hash === '#admin' && isAuth() && currentTab() === 'agenda') loadDay(); } });
+
+(function init() {
+  $('#wa-float').href = waLink(BARBER_PHONE, 'Olá Samir, gostaria de mais informações sobre a Samir Barber.');
+  WD.forEach(d => $('#cal-dow').insertAdjacentHTML('beforeend', `<div class="dow">${d}</div>`));
+  const [y, m] = todayStr().split('-').map(Number);
+  S.vy = y; S.vm = m - 1;
+  renderServices();
+  route();
+})();
+</script>
+</body>
+</html>
