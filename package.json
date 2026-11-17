@@ -1,0 +1,15 @@
+{
+  "name": "samir-barber",
+  "private": true,
+  "scripts": {
+    "db:login": "supabase login",
+    "db:link": "supabase link",
+    "db:push": "supabase db push --remote",
+    "db:diff": "supabase db diff --remote",
+    "db:new": "supabase migration new",
+    "db:types": "supabase gen types typescript --linked > supabase/types.ts"
+  },
+  "devDependencies": {
+    "supabase": "3.2.0"
+  }
+}

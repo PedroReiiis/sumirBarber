@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://fdbrxglmjoiwlutcelxb.supabase.co wss://fdbrxglmjoiwlutcelxb.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a0a0b">
+<title>Painel · Samir Barbearia</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/agendamento.css">
+</head>
+<body>
+
+<!-- ===================== ADMIN: LOGIN ===================== -->
+<div id="login-view" class="hidden">
+  <form class="login-card" id="login-form">
+    <h1 class="brand" style="font-size:1.6rem;text-align:center">Samir Barbearia</h1>
+    <p class="tagline" style="text-align:center;margin:0 0 18px">Painel administrativo</p>
+    <div class="field"><label for="user">E-mail</label><input class="input" id="user" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="pass">Senha</label><input class="input" id="pass" type="password" autocomplete="current-password"></div>
+    <div class="err" id="login-err"></div>
+    <button class="btn btn-gold" type="submit">Entrar</button>
+    <p style="text-align:center;margin:16px 0 0"><a href="agendamento" style="color:var(--muted);font-size:.85rem">← Voltar ao site</a></p>
+  </form>
+</div>
+
+<!-- ===================== ADMIN: PAINEL ===================== -->
+<div id="app-view" class="admin-wrap hidden">
+  <div class="admin-top">
+    <h1 class="brand" style="font-size:1.4rem">Samir Barbearia · Painel</h1>
+    <div style="display:flex;gap:8px"><a class="btn btn-out btn-sm" href="agendamento">Ver site</a><button class="btn btn-out btn-sm" id="logout">Sair</button></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="agenda">Agenda</button>
+    <button class="tab" data-tab="blocks">Bloqueios</button>
+    <button class="tab" data-tab="hours">Horários</button>
+    <button class="tab" data-tab="blacklist">Lista negra</button>
+  </nav>
+
+  <section id="tab-agenda">
+    <div class="date-bar">
+      <button class="btn btn-out" id="d-prev" aria-label="Dia anterior">‹</button>
+      <input class="input" type="date" id="d-input">
+      <button class="btn btn-out" id="d-next" aria-label="Próximo dia">›</button>
+      <button class="btn btn-gold" id="d-today">Hoje</button>
+    </div>
+    <div class="day-label" id="day-label"></div>
+    <div id="agenda-list"></div>
+  </section>
+
+  <section id="tab-blocks" class="hidden">
+    <div class="panel">
+      <h3>Bloquear data / horário</h3>
+      <form id="block-form">
+        <div class="row">
+          <div class="field"><label>Data</label><input class="input" type="date" id="b-date"></div>
+          <div class="field"><label>Início</label><input class="input" type="time" id="b-start" value="12:00"></div>
+          <div class="field"><label>Fim</label><input class="input" type="time" id="b-end" value="13:00"></div>
+        </div>
+        <div class="field" style="margin-top:12px"><label>Motivo (opcional)</label><input class="input" id="b-reason" maxlength="100" placeholder="Ex.: almoço, compromisso"></div>
+        <label class="chk" style="margin:0 0 14px"><input type="checkbox" id="b-allday"> Bloquear o dia inteiro</label>
+        <button class="btn btn-gold" type="submit">Fechar este espaço</button>
+      </form>
+    </div>
+    <div class="panel"><h3>Bloqueios futuros</h3><div id="blocks-list"></div></div>
+  </section>
+
+  <section id="tab-hours" class="hidden">
+    <div class="panel">
+      <h3>Dias e horários de trabalho</h3>
+      <div class="days-grid" id="days-grid"></div>
+      <h3 style="margin-top:22px">Intervalo diário (almoço)</h3>
+      <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="break-on"> Fechar todos os dias neste intervalo</label>
+      <div class="row">
+        <div class="field"><label>Início</label><input class="input" type="time" id="break-start" value="12:00"></div>
+        <div class="field"><label>Fim</label><input class="input" type="time" id="break-end" value="13:00"></div>
+      </div>
+      <h3 style="margin-top:22px">Agenda aberta para clientes</h3>
+      <div class="row"><div class="field" style="max-width:220px"><label>Quantos dias à frente</label><input class="input" type="number" id="max-days" min="1" max="180" value="30"></div></div>
+      <button class="btn btn-gold" id="save-hours" style="margin-top:20px">Salvar configurações</button>
+    </div>
+  </section>
+
+  <section id="tab-blacklist" class="hidden">
+    <div class="panel">
+      <h3>Adicionar à lista negra</h3>
+      <form id="bl-form">
+        <div class="row">
+          <div class="field"><label>Telefone</label><input class="input" id="bl-phone" type="tel" inputmode="tel" placeholder="(65) 99999-9999"></div>
+          <div class="field"><label>Nome (opcional)</label><input class="input" id="bl-name" maxlength="80"></div>
+        </div>
+        <div class="field" style="margin-top:12px"><label>Motivo (opcional)</label><input class="input" id="bl-reason" maxlength="200" placeholder="Ex.: faltou sem avisar"></div>
+        <button class="btn btn-gold" type="submit">Bloquear número</button>
+      </form>
+    </div>
+    <div class="panel"><h3>Números bloqueados</h3><div id="bl-list"></div></div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>
