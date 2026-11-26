@@ -177,7 +177,16 @@ $('#form').addEventListener('submit', async e => {
   }
 
   const precoTxt = t.price ? `, Total: ${fmtBRL(t.price)}` : '';
-  const text = `Agendamento realizado com sucesso! Cliente: ${name}, Serviços: ${t.names}${precoTxt}, Data: ${brDate(S.date)}, Horário: ${S.time}, Duração: ${t.duration} min, Telefone: ${fmtPhone(phone)}.`;
+  const text =
+`💈 *Novo agendamento*
+
+👤 Cliente: ${name}
+✂️ Serviços: ${t.names}
+💰 Total: ${t.price ? fmtBRL(t.price) : 'a combinar'}
+📅 Data: ${brDate(S.date)}
+🕐 Horário: ${S.time} (${t.duration} min)
+📱 Telefone: ${fmtPhone(phone)}`;
+
   const url = waLink(BARBER_PHONE, text);
   showSuccess({
     name, phone: fmtPhone(phone),
