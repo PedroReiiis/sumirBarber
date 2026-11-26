@@ -2,31 +2,27 @@
 const BARBER_PHONE = '5565992396166';
 const S = { services: [], date: null, time: null, vy: 0, vm: 0 };
 
-// Preços por nome (usados se a tabela de serviços não tiver coluna de preço)
-const PRECOS = {
-  'corte social': 35, 'corte degrade': 40, 'barba simples': 25, 'barba prime': 35,
-  'pigmentacao': 20, 'sobrancelha': 15, 'limpeza de pele': 45, 'hidratacao capilar': 20,
-  'luzes': 130, 'cera depilatoria': 50, 'cone auricular': 45, 'alisamento capilar': 50
-};
-const OBS = { 'luzes': '🎁 Hidratação + matização GRÁTIS' };
+const fmtBRL = v => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const priceOf = s => (s.price == null ? null : Number(s.price));
 
-const norm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-const brl = v => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-const fromMin = m => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
-const priceOf = s => {
-  const p = s.price ?? s.preco ?? PRECOS[norm(s.name)];
-  return p == null ? null : Number(p);
-};
-
-function selected() { return S.services.map(k => ({ key: k, ...SERVICES[k] })); }
 function totals() {
-  const list = selected();
+  const list = S.services.map(k => ({ key: k, ...SERVICES[k] }));
   return {
     list,
     duration: list.reduce((t, s) => t + Number(s.duration), 0),
     price: list.reduce((t, s) => t + (priceOf(s) || 0), 0),
     names: list.map(s => s.name).join(' + ')
   };
+}
+
+// Busca preço e observação direto da tabela e junta em SERVICES
+async function loadPrices() {
+  try {
+    const rows = await run(sb.from('servicos').select('id,preco,obs').eq('ativo', true));
+    (rows || []).forEach(r => {
+      if (SERVICES[r.id]) { SERVICES[r.id].price = r.preco; SERVICES[r.id].obs = r.obs; }
+    });
+  } catch (e) { /* sem preço na tela, mas o agendamento continua funcionando */ }
 }
 
 function unlock(id) {
@@ -44,7 +40,7 @@ function updateBar() {
   bar.querySelector('.svc-count').textContent = n
     ? `${n} ${n === 1 ? 'serviço' : 'serviços'} · ${t.duration} min`
     : 'Selecione um ou mais serviços';
-  bar.querySelector('.svc-total').textContent = n && t.price ? brl(t.price) : '';
+  bar.querySelector('.svc-total').textContent = n && t.price ? fmtBRL(t.price) : '';
   bar.querySelector('button').disabled = !n;
 }
 
@@ -53,19 +49,23 @@ function onServicesChange() {
   lock('#step-info');
   updateBar();
   if (!S.services.length) { lock('#step-date'); lock('#step-time'); return; }
-  // Se o cliente já estava mais adiante, recalcula os horários com a nova duração
-  if (!$('#step-time').classList.contains('locked') && S.date) loadSlots(false);
+  // Se o cliente já estava no passo dos horários, recalcula com a nova duração
+  if (S.date && !$('#step-time').classList.contains('locked')) loadSlots(false);
 }
 
 function renderServices() {
   const box = $('#services'); box.innerHTML = '';
   if (!Object.keys(SERVICES).length) { box.innerHTML = '<div class="empty-msg">Nenhum serviço disponível no momento.</div>'; return; }
   Object.entries(SERVICES).forEach(([key, s]) => {
-    const p = priceOf(s), obs = OBS[norm(s.name)];
+    const p = priceOf(s);
+    const on = S.services.includes(key);
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'service' + (S.services.includes(key) ? ' selected' : '');
-    b.setAttribute('aria-pressed', String(S.services.includes(key)));
-    b.innerHTML = `<div><strong>${esc(s.name)}</strong><span>${p != null ? brl(p) : 'Duração aproximada'}${obs ? ' · ' + esc(obs) : ''}</span></div><div class="dur">${s.duration} min</div>`;
+    b.type = 'button'; b.className = 'service' + (on ? ' selected' : '');
+    b.setAttribute('aria-pressed', String(on));
+    b.innerHTML =
+      `<div><strong>${esc(s.name)}</strong>` +
+      `<span>${p != null ? fmtBRL(p) : 'Duração aproximada'}${s.obs ? ' · 🎁 ' + esc(s.obs) : ''}</span></div>` +
+      `<div class="dur">${s.duration} min</div>`;
     b.onclick = () => {
       const i = S.services.indexOf(key);
       if (i >= 0) S.services.splice(i, 1); else S.services.push(key);
@@ -142,7 +142,7 @@ async function loadSlots(scroll = true) {
       box.querySelectorAll('.slot').forEach(x => x.classList.toggle('selected', x === b));
       const tt = totals();
       $('#summary').innerHTML =
-        `<b>${esc(tt.names)}</b><br>${tt.duration} min${tt.price ? ' · <b>' + brl(tt.price) + '</b>' : ''}<br>${longDate(S.date)} às <b>${S.time}</b>`;
+        `<b>${esc(tt.names)}</b><br>${tt.duration} min${tt.price ? ' · <b>' + fmtBRL(tt.price) + '</b>' : ''}<br>${longDate(S.date)} às <b>${S.time}</b>`;
       unlock('#step-info');
     };
     box.appendChild(b);
@@ -162,32 +162,26 @@ $('#form').addEventListener('submit', async e => {
 
   const t = totals(), btn = $('#submit');
   booking = true; btn.disabled = true; btn.textContent = 'Confirmando…';
-
-  // Um agendamento por serviço, em sequência, um logo após o outro
-  let cur = toMin(S.time), done = 0;
   try {
-    for (const s of t.list) {
-      await run(sb.rpc('book_appointment', {
-        p_service_id: s.key, p_date: S.date, p_start: fromMin(cur), p_name: name, p_phone: phone
-      }));
-      cur += Number(s.duration);
-      done++;
-    }
+    // Uma única chamada: reserva todos os serviços juntos (tudo ou nada)
+    await run(sb.rpc('book_appointments', {
+      p_service_ids: t.list.map(s => s.key),
+      p_date: S.date, p_start: S.time, p_name: name, p_phone: phone
+    }));
   } catch (err) {
     fail(err);
-    if (done > 0) toast(`Só ${done} de ${t.list.length} serviços foram reservados. Fale com o Samir pelo WhatsApp.`, true);
     if (err?.code === 'P0001') { S.time = null; lock('#step-info'); loadSlots(false); }
     return;
   } finally {
     booking = false; btn.disabled = false; btn.textContent = 'Confirmar agendamento';
   }
 
-  const precoTxt = t.price ? `, Total: ${brl(t.price)}` : '';
+  const precoTxt = t.price ? `, Total: ${fmtBRL(t.price)}` : '';
   const text = `Agendamento realizado com sucesso! Cliente: ${name}, Serviços: ${t.names}${precoTxt}, Data: ${brDate(S.date)}, Horário: ${S.time}, Duração: ${t.duration} min, Telefone: ${fmtPhone(phone)}.`;
   const url = waLink(BARBER_PHONE, text);
   showSuccess({
     name, phone: fmtPhone(phone),
-    service: `${t.names} (${t.duration} min${t.price ? ' · ' + brl(t.price) : ''})`,
+    service: `${t.names} (${t.duration} min${t.price ? ' · ' + fmtBRL(t.price) : ''})`,
     date: longDate(S.date), time: S.time
   }, url);
   const w = window.open(url, '_blank');
@@ -221,6 +215,7 @@ $('#cal-next').onclick = () => { if (++S.vm > 11) { S.vm = 0; S.vy++; } renderCa
   $('#services').innerHTML = '<div class="empty-msg">Carregando…</div>';
   try {
     await Promise.all([loadServices(), loadSettings()]);
+    await loadPrices();
     renderServices();
     renderCalendar();
   } catch (e) {

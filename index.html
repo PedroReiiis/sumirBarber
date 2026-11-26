@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://www.google.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src https://www.google.com; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#121212">
 <title>Samir Barbearia | Agende seu horário</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
@@ -17,6 +19,9 @@
       <a href="#galeria">Galeria</a>
       <a href="agendamento.html">Serviços</a>
       <a href="https://wa.me/5565992396166">Contato</a>
+      <button class="loc nav-icon" id="locBtn" type="button" aria-label="Ver localização da barbearia" title="Localização">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 6.6c-.2-.6-.8-1.100-1.500-1.100H6.600c-.7 0-1.300.5-1.500 1.100L3 12v8c0 .6.4 1 1 1h1c.6 0 1-.4 1-1v-1h12v1c0 .6.4 1 1 1h1c.6 0 1-.4 1-1v-8l-2.100-5.400zM6.900 7.500h10.200l1.300 3.500H5.600l1.300-3.500zM6.500 16c-.8 0-1.500-.7-1.500-1.500S5.700 13 6.500 13 8 13.700 8 14.500 7.300 16 6.500 16zm11 0c-.8 0-1.500-.7-1.500-1.500s.7-1.500 1.500-1.500 1.500.7 1.500 1.500-.7 1.500-1.500 1.500z"/></svg>
+      </button>
       <a href="agendamento.html" target="_blank" rel="noopener" class="btn">Agendar</a>
     </nav>
   </div>
@@ -26,9 +31,9 @@
   <div class="hero">
     <div class="wrap">
       <span class="eyebrow">Cuiabá · Mato Grosso</span>
-      <h1>Seu Estilo Começa Aqui. <span class="gold">Mais Que um corte, Um Momento Feito Pra Você !</h1>
-      <p>A Nossa Cadeira te Espera </p>
-      
+      <h1>Seu Estilo Começa Aqui.</h1>
+      <p>Mais que um corte, um momento feito para você. A nossa cadeira te espera.</p>
+      <a href="agendamento.html" target="_blank" rel="noopener" class="btn hero-cta">Agendar Horário</a>
     </div>
   </div>
 
@@ -36,25 +41,14 @@
     <div class="wrap">
       <div class="carousel" aria-roledescription="carrossel">
         <div class="track" id="track">
-          <div class="slide"><img src="assets/img/img0.jpeg" alt="Costas da camisa com a marca Samir Barbearia" loading="lazy"></div>
-          <div class="slide"><img src="assets/img/img1.jpeg" alt="Barbeiro finalizando um corte com a máquina" loading="lazy"></div>
-          <div class="slide"><img src="assets/img/img2.jpeg" alt="Painel de bigode da barbearia com toalhas" loading="lazy"></div>
+          <div class="slide"><img src="assets/img/IMG_3445.png" alt="Costas da camisa com a marca Samir Barbearia" loading="lazy"></div>
+          <div class="slide"><img src="assets/img/IMG_3452.png" alt="Barbeiro finalizando um corte com a máquina" loading="lazy"></div>
+          <div class="slide"><img src="assets/img/IMG_3453.png" alt="Painel de bigode da barbearia com toalhas" loading="lazy"></div>
+          <div class="slide"><img src="assets/img/IMG_3627.PNG" alt="Painel de bigode da barbearia com toalhas" loading="lazy"></div>
         </div>
         <button class="arrow prev" id="prev" aria-label="Foto anterior">‹</button>
         <button class="arrow next" id="next" aria-label="Próxima foto">›</button>
         <div class="dots" id="dots"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="servicos">
-    <div class="wrap">
-
-      <div class="cards">
-        <div class="card"><div class="ic">✂️</div><h3>Corte</h3><p>Do clássico ao moderno, com acabamento preciso.</p></div>
-        <div class="card"><div class="ic">🧔</div><h3>Barba</h3><p>Alinhamento, toalha quente e cuidado total.</p></div>
-        <div class="card"><div class="ic">💈</div><h3>Corte + Barba</h3><p>O pacote completo para renovar o visual.</p></div>
-        <div class="card"><div class="ic">✨</div><h3>Acabamento</h3><p>Pezinho e sobrancelha para fechar com perfeição.</p></div>
       </div>
     </div>
   </section>
@@ -73,16 +67,8 @@
   </div>
 </footer>
 
-<!-- Botões flutuantes: localização, agendar (calendário) e WhatsApp -->
+<!-- Botão flutuante: apenas WhatsApp. Localização e agendar ficam no cabeçalho -->
 <div class="fabs">
-  <button class="loc" id="locBtn" type="button" aria-label="Ver localização da barbearia">
-    <svg viewBox="0 0 24 24"><path d="M18.9 6.6c-.2-.6-.8-1.100-1.500-1.100H6.600c-.7 0-1.300.5-1.500 1.100L3 12v8c0 .6.4 1 1 1h1c.6 0 1-.4 1-1v-1h12v1c0 .6.4 1 1 1h1c.6 0 1-.4 1-1v-8l-2.100-5.400zM6.900 7.500h10.200l1.300 3.500H5.600l1.300-3.500zM6.500 16c-.8 0-1.500-.7-1.500-1.500S5.700 13 6.500 13 8 13.700 8 14.500 7.300 16 6.500 16zm11 0c-.8 0-1.500-.7-1.500-1.500s.7-1.500 1.500-1.500 1.500.7 1.500 1.500-.7 1.500-1.500 1.500z"/></svg>
-  </button>
-
-  <a class="btn cal" aria-label="Agendar horário pelo WhatsApp" href="agendamento.html" target="_blank" rel="noopener">
-    <svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V2zm13 8H4v10h16V10zM6 12h4v4H6v-4z"/></svg>
-  </a>
-
   <a class="wa" href="https://wa.me/5565992396166" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
     <svg viewBox="0 0 32 32"><path d="M16 3C9 3 3.4 8.5 3.4 15.400c0 2.400.7 4.700 1.900 6.600L3.300 29l7.200-1.900c1.900 1 4 1.600 6.200 1.600 7 0 12.600-5.500 12.600-12.400C29.300 8.500 23 3 16 3zm0 22.600c-1.900 0-3.800-.5-5.400-1.500l-.4-.2-4.300 1.100 1.200-4.100-.3-.4a10 10 0 0 1-1.600-5.500C5.200 9.500 10 5 16 5s10.800 4.500 10.800 10c0 5.600-4.800 10.600-10.800 10.600zm5.900-7.600c-.3-.2-1.900-.9-2.200-1-.3-.1-.5-.2-.7.200-.2.300-.8 1-1 1.200-.2.200-.4.200-.7.100-1.900-.9-3.100-1.600-4.300-3.700-.3-.6.300-.5.900-1.700.1-.2 0-.4 0-.5l-1-2.300c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.100-.8.400-.3.300-1.100 1.100-1.100 2.600s1.100 3 1.300 3.200c.2.200 2.200 3.400 5.400 4.700 2 .8 2.800.9 3.800.7.600-.1 1.900-.8 2.200-1.500.3-.7.300-1.400.2-1.500-.1-.2-.3-.2-.6-.4z"/></svg>
   </a>
@@ -97,11 +83,7 @@
     <a class="btn" href="https://www.google.com/maps/search/?api=1&query=-15.66295668,-56.03319032" target="_blank" rel="noopener">Abrir no Google Maps</a>
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-<script src="assets/js/supabase-config.js"></script>
-<script src="assets/js/core.js"></script>
-<script src="assets/js/servicos.js"></script>
-<script src="assets/js/agendamento.js"></script>
-<script src="assets/js/site.js" defer></script>
+
+<script src="assets/js/site.js"></script>
 </body>
 </html>
