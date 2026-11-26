@@ -213,6 +213,11 @@ $('#new-booking').onclick = () => {
   updateBar(); renderCalendar(); window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+$('#modal-x').onclick = () => $('#new-booking').onclick();
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('#modal').classList.contains('hidden')) $('#new-booking').onclick();
+});
+
 $('#cal-prev').onclick = () => { if (--S.vm < 0) { S.vm = 11; S.vy--; } renderCalendar(); };
 $('#cal-next').onclick = () => { if (++S.vm > 11) { S.vm = 0; S.vy++; } renderCalendar(); };
 
